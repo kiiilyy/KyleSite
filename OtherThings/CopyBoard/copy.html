@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text and Image Processing</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #imageContainer {
+            margin-top: 20px;
+        }
+        #imageContainer img {
+            max-width: 100%;
+            max-height: 300px;
+        }
+        #imagePasteArea {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text and Image Processing Example</h1>
+    <textarea id="myTextarea" rows="10" cols="50" placeholder="输入文本..."></textarea>
+    <p id="wordCount">Word Count: 0</p>
+    <p id="charCount">Chinese Character Count: 0</p>
+    
+    <div id="imagePasteArea">粘贴图片到这里</div>
+    <div id="imageContainer"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#myTextarea').on('input', function() {
+                var text = $(this).val();
+
+                // 去除标点符号
+                var cleanText = text.replace(/[^\u4e00-\u9fa5\w\s]/g, '');
+
+                // 计算英文单词数
+                var words = cleanText.match(/\b\w+\b/g);
+                var wordCount = words ? words.length : 0;
+
+                // 计算中文汉字数
+                var chineseCharacters = cleanText.match(/[\u4e00-\u9fa5]/g);
+                var charCount = chineseCharacters ? chineseCharacters.length : 0;
+
+                // 显示统计结果
+                $('#wordCount').text('Word Count: ' + wordCount);
+                $('#charCount').text('Chinese Character Count: ' + charCount);
+            });
+
+            // 处理图片粘贴事件
+            $('#imagePasteArea').on('paste', function(event) {
+                var items = (event.originalEvent || event).clipboardData.items;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        var blob = items[i].getAsFile();
+                        var reader = new FileReader();
+                        reader.onload = function(event) {
+                            var imgSrc = event.target.result;
+                            $('#imageContainer').empty(); // 清空已有图片
+                            var img = $('<img>').attr('src', imgSrc);
+                            $('#imageContainer').append(img);
+                        };
+                        reader.readAsDataURL(blob);
+                        break; // 只处理第一张图片
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
